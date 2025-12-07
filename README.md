@@ -2,7 +2,7 @@
 
 A tiny **interactive Linux shell simulation** built entirely in JavaScript and HTML.  
 This project simulates a fake Linux boot process and allows you to interact with a minimal filesystem in the browser.
-
+check out [the page to this project](https://scratch-guy.github.io/linux-on-the-browser-fake-/)
 ---
 
 ## Features
