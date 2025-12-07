@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>$</title>
+<style>
+    body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+    #terminal { white-space: pre; }
+    #input-line { display: flex; }
+    #input-prompt { margin-right: 5px; }
+    #cmdInput { background: #000; color: #0f0; border: none; outline: none; font-family: monospace; flex: 1; }
+</style>
+</head>
+<body>
+<h1></h1>
+<div id="terminal"></div>
+<div id="input-line">
+    <span id="input-prompt">$</span>
+    <input id="cmdInput" autocomplete="off">
+</div>
+
+<script>
+const terminal = document.getElementById('terminal');
+const input = document.getElementById('cmdInput');
+const promptEl = document.getElementById('input-prompt');
+
+function appendLine(line) {
+    terminal.textContent += line + "\n";
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function execute(elf) {
+    if (!elf.startsWith("0x7FELF")) {
+        throw "Invalid ELF";
+    }
+    return atob(elf.slice(7));
+}
+
+let fs = {
+    "/boot/vmlinuz": "0x7FELFYm9vdGluZyBsaW51eCA2LjAuMC4uLg==",
+    "/boot/initrd.img": "0x7FELFLgogYmluCiAgICBidXN5Ym94IC0+IC4uL3NiaW4vYnVzeWJveAogICAgc2ggLT4gLi4vc2Jpbi9idXN5Ym94CiBkZXYKICAgIGNvbnNvbGUKICAgIG51bGwKICAgIHR0eQogZXRjCiAgICBtdGFiIC0+IC9wcm9jL21vdW50cwogaW5pdAogbGliCiAgICBtb2R1bGVzCiAgICAgICA8a2VybmVsLXZlcnNpb24+CiAgICAgICAgICAga2VybmVsCiAgICAgICAgICAgICAgIGRyaXZlcnMKICAgICAgICAgICAgICAgICAgIGJsb2NrCiAgICAgICAgICAgICAgICAgICAgICA8YmxvY2stZGV2aWNlLWRyaXZlcj4ua28KICAgICAgICAgICAgICAgICAgIHNjc2kKICAgICAgICAgICAgICAgICAgICAgICA8c2NzaS1kcml2ZXI+LmtvCiAgICA8c2hhcmVkLWxpYnJhcmllcz4uc28uKgogcHJvYwogcm9vdAogcnVuCiBzYmluCiAgICBidXN5Ym94CiAgICBjaHJvb3QKICAgIGRtZXNnCiAgICBmc2NrCiAgICBtb2Rwcm9iZQogICAgbW91bnQKICAgIHBpdm90X3Jvb3QKICAgIHN3aXRjaF9yb290CiAgICB1bW91bnQKICAgIHVkZXZkCiBzeXMKIHRtcAogdXNyCiAgICAgYmluCiAgICAgICAgIDx1dGlsaXR5LWJpbmFyaWVzPg==",
+    "/init": "0x7FELFcm9vdCBsb2dpbiBvbiAnY29uc29sZSc="
+};
+
+const rootFS = {...fs};
+
+// Fake boot sequence
+appendLine(execute(fs["/boot/vmlinuz"]));
+appendLine(execute(fs["/boot/initrd.img"]));
+appendLine("mounting rootfs...");
+appendLine("done!");
+appendLine("run /init as init process.");
+appendLine(execute(fs["/init"]));
+
+// Focus input
+input.focus();
+
+// Handle input
+input.addEventListener("keydown", function(event) {
+    if(event.key === "Enter") {
+        const cmd = input.value.trim();
+        if(!cmd) return;
+        let path = cmd.startsWith("/") ? cmd : "/" + cmd;
+        if(path in fs) {
+            appendLine("$" + cmd); // show the command typed
+            appendLine(execute(fs[path]));
+        } else {
+            appendLine("$" + cmd);
+            appendLine(`ash: ${cmd.split(" ")[0]}: command not found`);
+        }
+        input.value = "";
+        input.focus();
+    }
+});
+</script>
+</body>
+</html>
