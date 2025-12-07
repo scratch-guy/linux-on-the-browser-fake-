@@ -31,7 +31,7 @@ function appendLine(line) {
 
 function execute(elf) {
     if (!elf.startsWith("0x7FELF")) {
-        throw "Invalid ELF";
+        alert("Invalid ELF");
     }
     return atob(elf.slice(7));
 }
