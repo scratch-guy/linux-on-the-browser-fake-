@@ -44,14 +44,11 @@ let fs = {
 
 const rootFS = {...fs};
 
-// Fake boot sequence
-appendLine("/boot/vmlinuz");
+// boot sequence
 appendLine(execute(fs["/boot/vmlinuz"]));
-appendLine("/boot/initrd.img");
 appendLine(execute(fs["/boot/initrd.img"]));
 appendLine("mounting rootfs...");
-
-
+const rootfs = fs;
 appendLine("run /init as init process.");
 appendLine(execute(fs["/init"]));
 
